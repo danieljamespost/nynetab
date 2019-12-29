@@ -19,19 +19,24 @@ func main() {
 	if err != nil {
 		log.Print(err)
 	}
-	expandtab(w)
+	tabWidth, err := strconv.Atoi(os.Args[1])
+	if err != nil {
+		log.Print(err)
+	}
+	expandtab(w, tabWidth)
 }
 
-func expandtab(w *acme.Win) {
-	for e := range w.EventChan() {
-		fmt.Printf("%+v\n", e)
-		fmt.Printf("'%s'\n", string(e.Text))
+func expandtab(w *acme.Win, width int) {
+	var tab []byte
+	for i := 0; i < width; i++ {
+		tab = append(tab, ' ')
+	}
 
+	for e := range w.EventChan() {
 		evtType := fmt.Sprintf("%s%s", string(e.C1), string(e.C2))
 		switch (evtType) {
 		case "KI":
     			if string(e.Text) == "	" {
-				tab := []byte("    ")
 				err := w.Addr("#%d;+#1", e.Q0)
 				if err != nil {
 					log.Print(err)
@@ -45,17 +50,8 @@ func expandtab(w *acme.Win) {
 				e.Nr = utf8.RuneCount(tab)
 				e.Text = tab
 				w.WriteEvent(e)
-
-				fmt.Println("TAB")
-				fmt.Printf("%+v\n", e)
 			}
-		case "MX":
-			fallthrough
-		case "Mx":
-			fallthrough
-		case "Ml":
-			fallthrough
-		case "ML":
+		default:
 			w.WriteEvent(e)
 		}
 	}

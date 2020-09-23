@@ -1,4 +1,4 @@
-module git.sr.ht/~danieljamespost/nynetab
+module github.com/danieljamespost/nynetab
 
 go 1.13
 
